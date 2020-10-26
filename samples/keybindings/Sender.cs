@@ -19,6 +19,34 @@ public class Sender : MVRScript
         }
     }
 
+    public void Update()
+    {
+        // This is a simplistic implementation of a keybinding plugin
+        if (!Input.anyKeyDown) return;
+
+        for (var i = 0; i < 10; i++)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha0 + i))
+            {
+                var receiver = _receivers.ElementAtOrDefault(i);
+                if (receiver != null)
+                {
+                    SendAction(receiver, receiver.actions[0]);
+                }
+            }
+        }
+    }
+
+    private void SendAction(Receiver receiver, string action)
+    {
+        if (receiver.storable == null)
+        {
+            _receivers.Remove(receiver);
+            return;
+        }
+        receiver.storable.SendMessage("OnActionTriggered", action, SendMessageOptions.RequireReceiver);
+    }
+
     public void AcquireAllAvailableBroadcastingPlugins()
     {
         foreach (var atom in SuperController.singleton.GetAtoms())
