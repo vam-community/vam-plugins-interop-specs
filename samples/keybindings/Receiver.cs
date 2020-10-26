@@ -26,13 +26,13 @@ public class Receiver : MVRScript
         {
             foreach (var storable in atom.GetStorableIDs().Select(id => atom.GetStorableByID(id)).Where(s => s is MVRScript))
             {
-                storable.SendMessage("ActionsAvailable", this, SendMessageOptions.DontRequireReceiver);
+                storable.SendMessage("OnActionsReceiverAvailable", this, SendMessageOptions.DontRequireReceiver);
             }
         }
     }
 
     // This method will be called whenever a keybinding plugin is initialized. List all available bindings here.
-    public void PublishActions(List<string> bindings)
+    public void OnActionsListRequested(List<string> bindings)
     {
         bindings.Add("my-binding");
     }
@@ -40,6 +40,6 @@ public class Receiver : MVRScript
     // This method will be called whenever a keybinding is triggered
     public void OnActionTriggered(string action)
     {
-        SuperController.LogMessage($"Received received action: {action}");
+        SuperController.LogMessage($"{containingAtom?.name} received action: {action}");
     }
 }

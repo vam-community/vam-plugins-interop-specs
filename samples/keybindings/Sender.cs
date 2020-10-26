@@ -24,9 +24,9 @@ public class Sender : MVRScript
         // This is a simplistic implementation of a keybinding plugin
         if (!Input.anyKeyDown) return;
 
-        for (var i = 0; i < 10; i++)
+        for (var i = 0; i < 9; i++)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha0 + i))
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
                 var receiver = _receivers.ElementAtOrDefault(i);
                 if (receiver != null)
@@ -58,7 +58,7 @@ public class Sender : MVRScript
         }
     }
 
-    public void ActionsAvailable(JSONStorable storable)
+    public void OnActionsReceiverAvailable(JSONStorable storable)
     {
         var existing = _receivers.FirstOrDefault(r => r.storable == storable);
         if (existing != null) _receivers.Remove(existing);
@@ -68,7 +68,7 @@ public class Sender : MVRScript
     private void TryRegister(JSONStorable storable)
     {
         var actions = new List<string>();
-        storable.SendMessage("PublishActions", this, SendMessageOptions.DontRequireReceiver);
+        storable.SendMessage("OnActionsListRequested", actions, SendMessageOptions.DontRequireReceiver);
         if (actions.Count > 0)
         {
             _receivers.Add(new Receiver
