@@ -19,34 +19,6 @@ public class Sender : MVRScript
         }
     }
 
-    public void Update()
-    {
-        // This is a simplistic implementation of a keybinding plugin
-        if (!Input.anyKeyDown) return;
-
-        for (var i = 0; i < 9; i++)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
-            {
-                var receiver = _receivers.ElementAtOrDefault(i);
-                if (receiver != null)
-                {
-                    SendAction(receiver, receiver.actions[0]);
-                }
-            }
-        }
-    }
-
-    private void SendAction(Receiver receiver, string action)
-    {
-        if (receiver.storable == null)
-        {
-            _receivers.Remove(receiver);
-            return;
-        }
-        receiver.storable.SendMessage("OnActionTriggered", action, SendMessageOptions.RequireReceiver);
-    }
-
     public void AcquireAllAvailableBroadcastingPlugins()
     {
         foreach (var atom in SuperController.singleton.GetAtoms())
@@ -77,6 +49,51 @@ public class Sender : MVRScript
                 actions = actions
             });
         }
+    }
+
+    public void Update()
+    {
+        try
+        {
+            ProcessKeys();
+        }
+        catch (Exception e)
+        {
+            SuperController.LogError($"{nameof(Receiver)}.{nameof(Update)}: {e}");
+        }
+    }
+
+    // This is a simplistic implementation of a keybinding plugin
+    // We just map keys 1-9 to a plugin's first action in the order
+    // they were registered
+    private void ProcessKeys()
+    {
+        if (!Input.anyKeyDown) return;
+
+        for (var i = 0; i < _receivers.Count; i++)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            {
+                var receiver = _receivers[i];
+                SendAction(receiver, receiver.actions[0]);
+            }
+        }
+    }
+
+    private void SendAction(Receiver receiver, string action)
+    {
+        if (receiver.storable == null)
+        {
+            _receivers.Remove(receiver);
+            SuperController.LogError($"{nameof(Sender)}: The receiver does not exist anymore.");
+            return;
+        }
+        if (!receiver.storable.isActiveAndEnabled)
+        {
+            SuperController.LogError($"{nameof(Sender)}: The receiver {receiver.storable.containingAtom?.name ?? "(unspecified)"}/{receiver.storable.name} is disabled.");
+            return;
+        }
+        receiver.storable.SendMessage("OnActionTriggered", action, SendMessageOptions.RequireReceiver);
     }
 
     private class Receiver
