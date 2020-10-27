@@ -32,14 +32,9 @@ public class Receiver : MVRScript
     }
 
     // This method will be called whenever a keybinding plugin is initialized. List all available bindings here.
-    public void OnActionsListRequested(List<string> bindings)
+    public void OnBindingsListRequested(List<object> bindings)
     {
-        bindings.Add("my-binding");
-    }
-
-    // This method will be called whenever a keybinding is triggered
-    public void OnActionTriggered(string action)
-    {
-        SuperController.LogMessage($"{containingAtom?.name} received action: {action}");
+        var actionBindingExampleJSON = new JSONStorableAction("my-binding", () => SuperController.LogMessage($"{containingAtom?.name} received action: my-binding"));
+        bindings.Add(actionBindingExampleJSON);
     }
 }

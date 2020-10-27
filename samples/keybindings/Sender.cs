@@ -39,16 +39,35 @@ public class Sender : MVRScript
 
     private void TryRegister(JSONStorable storable)
     {
-        var actions = new List<string>();
-        storable.SendMessage("OnActionsListRequested", actions, SendMessageOptions.DontRequireReceiver);
-        if (actions.Count > 0)
+        var bindings = new List<object>();
+        storable.SendMessage("OnBindingsListRequested", bindings, SendMessageOptions.DontRequireReceiver);
+        if (bindings.Count > 0)
         {
+            var actions = new List<JSONStorableAction>();
+            var floats = new List<JSONStorableFloat>();
+            foreach (var binding in bindings)
+            {
+                if (!(TryAdd(actions, binding) || TryAdd(floats, binding)))
+                    SuperController.LogError($"{nameof(Sender)}: Received unknown binding type {binding.GetType()} from {storable.name} in atom {storable.containingAtom?.name ?? "(no containing atom)"}.");
+            }
             _receivers.Add(new Receiver
             {
                 storable = storable,
-                actions = actions
+                actions = actions,
+                floats = floats
             });
         }
+    }
+
+    private static bool TryAdd<T>(List<T> list, object binding) where T : class
+    {
+        var typed = binding as T;
+        if (typed != null)
+        {
+            list.Add(typed);
+            return true;
+        }
+        return false;
     }
 
     public void Update()
@@ -75,30 +94,34 @@ public class Sender : MVRScript
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
                 var receiver = _receivers[i];
-                SendAction(receiver, receiver.actions[0]);
+                if (ValidateReceiver(receiver))
+                {
+                    receiver.actions[0].actionCallback.Invoke();
+                }
             }
         }
     }
 
-    private void SendAction(Receiver receiver, string action)
+    private bool ValidateReceiver(Receiver receiver)
     {
         if (receiver.storable == null)
         {
             _receivers.Remove(receiver);
             SuperController.LogError($"{nameof(Sender)}: The receiver does not exist anymore.");
-            return;
+            return false;
         }
         if (!receiver.storable.isActiveAndEnabled)
         {
             SuperController.LogError($"{nameof(Sender)}: The receiver {receiver.storable.containingAtom?.name ?? "(unspecified)"}/{receiver.storable.name} is disabled.");
-            return;
+            return false;
         }
-        receiver.storable.SendMessage("OnActionTriggered", action, SendMessageOptions.RequireReceiver);
+        return true;
     }
 
     private class Receiver
     {
         public JSONStorable storable;
-        public List<string> actions;
+        public List<JSONStorableAction> actions;
+        public List<JSONStorableFloat> floats;
     }
 }
