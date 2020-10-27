@@ -87,6 +87,8 @@ public class Sender : MVRScript
     // they were registered
     private void ProcessKeys()
     {
+        if(_receivers.Count == 0) return;
+
         if (Input.anyKeyDown)
         {
             for (var i = 0; i < _receivers.Count; i++)
@@ -94,34 +96,36 @@ public class Sender : MVRScript
                 if (Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
                     var receiver = _receivers[i];
-                    if (ValidateReceiver(receiver))
-                    {
+                    if (receiver.actions.Count > 0 && ValidateReceiver(receiver))
                         receiver.actions[0].actionCallback.DynamicInvoke();
-                    }
                 }
             }
         }
 
         if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
-            if (p != null) p.val = -1f;
+            var receiver = _receivers[0];
+            if (receiver.floats.Count > 0 && ValidateReceiver(receiver))
+                receiver.floats[0].val = -1f;
         }
         else if (Input.GetKeyUp(KeyCode.LeftArrow))
         {
-            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
-            if (p != null) p.val = 0f;
+            var receiver = _receivers[0];
+            if (receiver.floats.Count > 0 && ValidateReceiver(receiver))
+                receiver.floats[0].val = 0f;
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
-            if (p != null) p.val = 1f;
+            var receiver = _receivers[0];
+            if (receiver.floats.Count > 0 && ValidateReceiver(receiver))
+                receiver.floats[0].val = 1f;
         }
         else if (Input.GetKeyUp(KeyCode.RightArrow))
         {
-            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
-            if (p != null) p.val = 0f;
+            var receiver = _receivers[0];
+            if (receiver.floats.Count > 0 && ValidateReceiver(receiver))
+                receiver.floats[0].val = 0f;
         }
     }
 

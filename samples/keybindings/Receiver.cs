@@ -14,13 +14,13 @@ public class Receiver : MVRScript
         {
             _actionBindingExampleJSON = new JSONStorableAction(
                 "my-action-binding",
-                () => SuperController.LogMessage($"{containingAtom?.name} received action: my-action-binding")
+                Log
             );
 
             _floatBindingExampleJSON = new JSONStorableFloat(
                 "my-float-binding",
                 0f,
-                (float val) => SuperController.LogMessage($"{containingAtom?.name} received float: my-float-binding = {val}"),
+                Log,
                 -1f,
                 1f
             );
@@ -31,6 +31,16 @@ public class Receiver : MVRScript
         {
             SuperController.LogError($"{nameof(Receiver)}.{nameof(Init)}: {e}");
         }
+    }
+
+    private void Log()
+    {
+        SuperController.LogMessage($"{containingAtom?.name} received action: my-action-binding");
+    }
+
+    private void Log(float val)
+    {
+        SuperController.LogMessage($"{containingAtom?.name} received float: my-float-binding = {val}");
     }
 
     // This is a specialized Broadcast that targets Virt-A-Mate plugins
