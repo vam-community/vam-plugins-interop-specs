@@ -56,6 +56,7 @@ public class Sender : MVRScript
                 actions = actions,
                 floats = floats
             });
+            SuperController.LogMessage($"{nameof(Sender)}: Registered {actions.Count + floats.Count} bindings");
         }
     }
 
@@ -87,7 +88,7 @@ public class Sender : MVRScript
     // they were registered
     private void ProcessKeys()
     {
-        if(_receivers.Count == 0) return;
+        if (_receivers.Count == 0) return;
 
         if (Input.anyKeyDown)
         {
