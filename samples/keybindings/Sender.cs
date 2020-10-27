@@ -87,18 +87,41 @@ public class Sender : MVRScript
     // they were registered
     private void ProcessKeys()
     {
-        if (!Input.anyKeyDown) return;
-
-        for (var i = 0; i < _receivers.Count; i++)
+        if (Input.anyKeyDown)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            for (var i = 0; i < _receivers.Count; i++)
             {
-                var receiver = _receivers[i];
-                if (ValidateReceiver(receiver))
+                if (Input.GetKeyDown(KeyCode.Alpha1 + i))
                 {
-                    receiver.actions[0].actionCallback.Invoke();
+                    var receiver = _receivers[i];
+                    if (ValidateReceiver(receiver))
+                    {
+                        receiver.actions[0].actionCallback.DynamicInvoke();
+                    }
                 }
             }
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
+            if (p != null) p.val = -1f;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftArrow))
+        {
+            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
+            if (p != null) p.val = 0f;
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
+            if (p != null) p.val = 1f;
+        }
+        else if (Input.GetKeyUp(KeyCode.RightArrow))
+        {
+            var p = _receivers.FirstOrDefault()?.floats.FirstOrDefault();
+            if (p != null) p.val = 0f;
         }
     }
 

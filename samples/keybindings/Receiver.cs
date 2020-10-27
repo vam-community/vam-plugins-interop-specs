@@ -5,11 +5,25 @@ using UnityEngine;
 
 public class Receiver : MVRScript
 {
+    private JSONStorableAction _actionBindingExampleJSON;
+    private JSONStorableFloat _floatBindingExampleJSON;
+
     public override void Init()
     {
         try
         {
-            // Initialize your plugin here
+            _actionBindingExampleJSON = new JSONStorableAction(
+                "my-action-binding",
+                () => SuperController.LogMessage($"{containingAtom?.name} received action: my-action-binding")
+            );
+
+            _floatBindingExampleJSON = new JSONStorableFloat(
+                "my-float-binding",
+                0f,
+                (float val) => SuperController.LogMessage($"{containingAtom?.name} received float: my-float-binding = {val}"),
+                -1f,
+                1f
+            );
 
             BroadcastActionsAvailable();
         }
@@ -34,7 +48,7 @@ public class Receiver : MVRScript
     // This method will be called whenever a keybinding plugin is initialized. List all available bindings here.
     public void OnBindingsListRequested(List<object> bindings)
     {
-        var actionBindingExampleJSON = new JSONStorableAction("my-binding", () => SuperController.LogMessage($"{containingAtom?.name} received action: my-binding"));
-        bindings.Add(actionBindingExampleJSON);
+        bindings.Add(_actionBindingExampleJSON);
+        bindings.Add(_floatBindingExampleJSON);
     }
 }
