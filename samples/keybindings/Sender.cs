@@ -37,6 +37,12 @@ public class Sender : MVRScript
         TryRegister(storable);
     }
 
+    public void OnActionsProviderDestroyed(JSONStorable storable)
+    {
+        var existing = _receivers.FirstOrDefault(r => r.storable == storable);
+        if (existing != null) _receivers.Remove(existing);
+    }
+
     private void TryRegister(JSONStorable storable)
     {
         var bindings = new List<object>();

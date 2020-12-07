@@ -25,12 +25,17 @@ public class Receiver : MVRScript
                 1f
             );
 
-            BroadcastActionsAvailable();
+            Broadcast("OnActionsProviderAvailable");
         }
         catch (Exception e)
         {
             SuperController.LogError($"{nameof(Receiver)}.{nameof(Init)}: {e}");
         }
+    }
+
+    public void OnDestroy()
+    {
+        Broadcast("OnActionsProviderDestroyed");
     }
 
     private void Log()
@@ -44,13 +49,13 @@ public class Receiver : MVRScript
     }
 
     // This is a specialized Broadcast that targets Virt-A-Mate plugins
-    public void BroadcastActionsAvailable()
+    private void Broadcast(string method)
     {
         foreach (var atom in SuperController.singleton.GetAtoms())
         {
             foreach (var storable in atom.GetStorableIDs().Select(id => atom.GetStorableByID(id)).Where(s => s is MVRScript))
             {
-                storable.SendMessage("OnActionsReceiverAvailable", this, SendMessageOptions.DontRequireReceiver);
+                storable.SendMessage(method, this, SendMessageOptions.DontRequireReceiver);
             }
         }
     }

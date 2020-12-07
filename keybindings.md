@@ -13,25 +13,32 @@ public class Receiver : MVRScript
 {
     public void Init()
     {
-        BroadcastActionsAvailable();
+        // Call this when ready to receive shortcuts
+        Broadcast("OnActionsProviderAvailable");
     }
 
-    // This method should be called whenever the plugin is ready to receive shortcuts bindings
-    public void BroadcastActionsAvailable()
+    public void OnDestroy()
+    {
+        // Call this when this plugin should not receive shortcuts anymore
+        Broadcast("OnActionsProviderDestroyed");
+    }
+
+    // This is a more efficient way to broadcast than the built-in Unity method
+    public void Broadcast(string method)
     {
         foreach (var atom in SuperController.singleton.GetAtoms())
         {
             foreach (var storable in atom.GetStorableIDs().Select(id => atom.GetStorableByID(id)).Where(s => s is MVRScript))
             {
-                storable.SendMessage("OnActionsReceiverAvailable", this, SendMessageOptions.DontRequireReceiver);
+                storable.SendMessage(method, this, SendMessageOptions.DontRequireReceiver);
             }
         }
     }
 
-    // This method will be called when a binding executor is launched
+    // This method will be called when a shortcuts plugin is started
     public void OnBindingsListRequested(List<object> bindings)
     {
-        bindings.Add(new JSONStorableAction());
+        bindings.Add(new JSONStorableAction("MyAction", () => SuperController.LogMessage("Hi!")));
     }
 }
 ```
@@ -42,8 +49,4 @@ public class Receiver : MVRScript
 | ---------------- | ------ | ------ | ------------------ | --------- | ------------- |
 | Key Down         | Invoke | Toggle | 1                  | -         | Next          |
 | Key Up           | -      | -      | 0                  | -         | -             |
-| Mouse Down       | Invoke | Toggle | 1                  | -         | Next          |
-| Mouse Up         | -      | -      | 0                  | -         | -             |
-| Mouse Wheel Up   | Invoke | True   | -                  | -         | Previous      |
-| Mouse Wheel Down | Invoke | False  | -                  | -         | Next          |
 | Thumbstick       | -      | -      | Normalized Average | (x, y, 0) | -             |
