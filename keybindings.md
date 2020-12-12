@@ -13,26 +13,15 @@ public class Receiver : MVRScript
 {
     public void Init()
     {
-        // Call this when ready to receive shortcuts
-        Broadcast("OnActionsProviderAvailable");
+        // Call this when ready to receive shortcuts or when shortcuts have changed
+        SuperController.singleton.BroadcastMessage(OnActionsProviderAvailable, this, SendMessageOptions.DontRequireReceiver);
+
     }
 
     public void OnDestroy()
     {
         // Call this when this plugin should not receive shortcuts anymore
-        Broadcast("OnActionsProviderDestroyed");
-    }
-
-    // This is a more efficient way to broadcast than the built-in Unity method
-    public void Broadcast(string method)
-    {
-        foreach (var atom in SuperController.singleton.GetAtoms())
-        {
-            foreach (var storable in atom.GetStorableIDs().Select(id => atom.GetStorableByID(id)).Where(s => s is MVRScript))
-            {
-                storable.SendMessage(method, this, SendMessageOptions.DontRequireReceiver);
-            }
-        }
+        SuperController.singleton.BroadcastMessage(OnActionsProviderDestroyed, this, SendMessageOptions.DontRequireReceiver);
     }
 
     // This method will be called when a shortcuts plugin is started
@@ -50,3 +39,13 @@ public class Receiver : MVRScript
 | Key Down         | Invoke | Toggle | 1                  | -         | Next          |
 | Key Up           | -      | -      | 0                  | -         | -             |
 | Thumbstick       | -      | -      | Normalized Average | (x, y, 0) | -             |
+
+## Projects using this
+
+### Keybindings plugins
+
+- [VimVam by Acidbubbles](https://github.com/acidbubbles/vam-vimvam) (under development)
+
+### Plugins compatible with keybindings
+
+- [Timeline by Acidbubbles](https://github.com/acidbubbles/vam-timeline) (under development)
