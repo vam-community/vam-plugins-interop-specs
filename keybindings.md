@@ -14,19 +14,26 @@ public class Receiver : MVRScript
     public void Init()
     {
         // Call this when ready to receive shortcuts or when shortcuts have changed
-        SuperController.singleton.BroadcastMessage(OnActionsProviderAvailable, this, SendMessageOptions.DontRequireReceiver);
+        SuperController.singleton.BroadcastMessage("OnActionsProviderAvailable", this, SendMessageOptions.DontRequireReceiver);
 
     }
 
     public void OnDestroy()
     {
         // Call this when this plugin should not receive shortcuts anymore
-        SuperController.singleton.BroadcastMessage(OnActionsProviderDestroyed, this, SendMessageOptions.DontRequireReceiver);
+        SuperController.singleton.BroadcastMessage("OnActionsProviderDestroyed", this, SendMessageOptions.DontRequireReceiver);
     }
 
     // This method will be called when a shortcuts plugin is started
     public void OnBindingsListRequested(List<object> bindings)
     {
+        // Custom binding metadata, provided by the shortcuts plugin
+        bindings.Add(new Dictionary<string, string>
+        {
+            // For example, Keybindings supports providing a namespace value:
+            { "Namespace", "MySuperPlugin" }
+        });
+        // Add JSONStorable bindings (see Supported action types)
         bindings.Add(new JSONStorableAction("MyAction", () => SuperController.LogMessage("Hi!")));
     }
 }
@@ -34,18 +41,19 @@ public class Receiver : MVRScript
 
 ## Supported action types
 
-| Map/JSONStorable | Action | Bool   | Float              | Vector3   | StringChooser |
-| ---------------- | ------ | ------ | ------------------ | --------- | ------------- |
-| Key Down         | Invoke | Toggle | 1                  | -         | Next          |
-| Key Up           | -      | -      | 0                  | -         | -             |
-| Thumbstick       | -      | -      | Normalized Average | (x, y, 0) | -             |
+| Map/JSONStorable | Action | Bool   | Float              |
+| ---------------- | ------ | ------ | ------------------ |
+| Key Down         | Invoke | False  | -1 or 1            |
+| Key Up           | -      | True   | 0                  |
+| Thumbstick       | -      | -      | -1 .. 1            |
 
 ## Projects using this
 
 ### Keybindings plugins
 
-- [VimVam by Acidbubbles](https://github.com/acidbubbles/vam-vimvam) (under development)
+- [Keybindings by Acidbubbles](https://github.com/acidbubbles/vam-vimvam)
 
 ### Plugins compatible with keybindings
 
-- [Timeline by Acidbubbles](https://github.com/acidbubbles/vam-timeline) (under development)
+- [Timeline by Acidbubbles](https://github.com/acidbubbles/vam-timeline)
+- [Embody by Acidbubbles](https://github.com/acidbubbles/vam-embody) (under development)

@@ -30,7 +30,7 @@ public class Sender : MVRScript
         }
     }
 
-    public void OnActionsReceiverAvailable(JSONStorable storable)
+    public void OnActionsProviderAvailable(JSONStorable storable)
     {
         var existing = _receivers.FirstOrDefault(r => r.storable == storable);
         if (existing != null) _receivers.Remove(existing);
